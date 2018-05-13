@@ -1,0 +1,134 @@
+Domain: Telecom
+Project: Analyzing customer churn using telco dataset
+Data: https://www.ibm.com/communities/analytics/watson-analyticsblog/predictive-insights-in-the-telco-customer-churn-data-set/
+
+This dataset is of Telco customer churn data. A telecommunications company is
+concerned about the number of customers leaving their landline business for
+cable competitors. It also helps to retain the customer by providing good
+services and launching new schemes, discounts at required times. It consist of
+CustomerID, gender, tenure, Senior citizens, contract etc.
+
+-----------------------------------------
+customerID,gender,SeniorCitizen,Partner,Dependents,tenure,PhoneService,MultipleLines,   InternetService,OnlineSecurity,      OnlineBackup,       DeviceProtection,   TechSupport,        StreamingTV,        StreamingMovies,    Contract,      PaperlessBilling,PaymentMethod,            MonthlyCharges,TotalCharges,Churn
+7590-VHVEG,Female,0,            Yes,    No,        1,     No,          No phone service,DSL,             No,                 Yes,                No,                 No,                 No,                 No,                 Month-to-month,Yes,             Electronic check,         29.85,         29.85,       No
+7795-CFOCW,Male,  0,            No,     No,        45,    No,          No phone service,DSL,             Yes,                No,                 Yes,                Yes,                No,                 No,                 One year,       No,             Bank transfer (automatic),42.3,          1840.75,     No
+7469-LKBCI,Male,  0,            No,     No,        16,    Yes,         No,              No,              No internet service,No internet service,No internet service,No internet service,No internet service,No internet service,Two year,       No,             Credit card (automatic),  18.95,         326.8,       No
+
+1452-KIOVK,Male,  0,            No,     Yes,22,Yes,Yes,Fiber optic,No,Yes,No,No,Yes,No,Month-to-month,Yes,Credit card (automatic),89.1,1949.4,No
+----------------------------------------
+
+Possible Exploration idea:
+1. Display average bill (Total charges) paid by male and female.
+	telco_churn_data = LOAD 'WA_Fn-UseC_-Telco-Customer-Churn.csv' USING PigStorage(',') AS (customerID:chararray,gender:chararray,SeniorCitizen:int,Partner:chararray,Dependents:chararray,tenure:int,PhoneService:chararray,MultipleLines:chararray,InternetService:chararray,OnlineSecurity:chararray,OnlineBackup:chararray,DeviceProtection:chararray,TechSupport:chararray,StreamingTV:chararray,StreamingMovies:chararray,Contract:chararray,PaperlessBilling:chararray,PaymentMethod:chararray,MonthlyCharges:double,TotalCharges:double,Churn:chararray);
+
+	telco_churn_group_data = GROUP telco_churn_data ALL;
+	
+	#telco_total_charge = FOREACH telco_churn_data GENERATE SUM(TotalCharges);
+	
+	telco_average_bill = FOREACH telco_churn_group_data GENERATE AVG(telco_churn_data.TotalCharges);
+	
+	o/p: (2283.3004408418697)
+	
+	STORE telco_average_bill INTO 'hdfs://ip-172-31-53-48.ec2.internal:8020/user/shubhro2705854012/sb_proj_telco_churn/CASE1/telco_average_bill' USING PigStorage(',');
+	
+2. Display the most frequently used payment method a male.
+
+	telco_data_male = FILTER telco_churn_data BY gender == 'Male';
+	
+	telco_data_male_paymethod = GROUP telco_data_male BY PaymentMethod;
+	
+	telco_male_paymethod_count = FOREACH telco_data_male_paymethod GENERATE group,FLATTEN(COUNT($1)) AS payMethodCount;
+	
+	telco_male_paymethod_count_sort = ORDER telco_male_paymethod_count BY payMethodCount DESC;
+	
+	telco_male_paymethod_freq = LIMIT telco_male_paymethod_count_sort 1;
+	
+	STORE telco_data_male_paymethod INTO 'hdfs://ip-172-31-53-48.ec2.internal:8020/user/shubhro2705854012/sb_proj_telco_churn/CASE2/telco_data_male_paymethod' USING PigStorage(',');
+	STORE telco_male_paymethod_count_sort INTO 'hdfs://ip-172-31-53-48.ec2.internal:8020/user/shubhro2705854012/sb_proj_telco_churn/CASE2/telco_male_paymethod_count_sort' USING PigStorage(',');
+	STORE telco_male_paymethod_freq INTO 'hdfs://ip-172-31-53-48.ec2.internal:8020/user/shubhro2705854012/sb_proj_telco_churn/CASE2/telco_male_paymethod_freq' USING PigStorage(',');
+
+3. If the customer is not having any internet connection then what is the minimum bill that the customer has paid.
+
+	telco_cust_no_internet = FILTER telco_churn_data BY InternetService == 'No';
+	
+	telco_cust_no_internet_bill = GROUP telco_cust_no_internet ALL;
+	
+	telco_cust_no_internet_min_bill = FOREACH telco_cust_no_internet_bill GENERATE MIN(telco_cust_no_internet.TotalCharges);
+	
+	STORE telco_cust_no_internet INTO 'hdfs://ip-172-31-53-48.ec2.internal:8020/user/shubhro2705854012/sb_proj_telco_churn/CASE3/telco_cust_no_internet' USING PigStorage(',');
+	
+	STORE telco_cust_no_internet_min_bill INTO 'hdfs://ip-172-31-53-48.ec2.internal:8020/user/shubhro2705854012/sb_proj_telco_churn/CASE3/telco_cust_no_internet_min_bill' USING PigStorage(',');
+
+4. Count the number of senior citizen who have dependents (i.e. 1) and give them 20% discount on final bill and marked them as 'Sr Discount'.
+   
+   telco_senior_cust_have_dependents = FILTER telco_churn_data BY (Dependents == 'Yes') AND (SeniorCitizen == 1);
+   
+   telco_senior_cust_have_dep_grp = GROUP telco_senior_cust_have_dependents ALL;
+   
+   telco_senior_cust_have_dependents_count = FOREACH telco_senior_cust_have_dep_grp GENERATE COUNT($1);  //Output = 91
+   
+   telco_senior_cust_have_dep_disc = FOREACH telco_senior_cust_have_dependents GENERATE *, ROUND_TO((MonthlyCharges * 0.8),2) AS finalMonCharge, ROUND_TO((TotalCharges * 0.8),2) AS finalTotCharge;
+   
+   STORE telco_senior_cust_have_dependents INTO 'hdfs://ip-172-31-53-48.ec2.internal:8020/user/shubhro2705854012/sb_proj_telco_churn/CASE4/telco_senior_cust_have_dependents' USING PigStorage(',');
+   STORE telco_senior_cust_have_dependents_count INTO 'hdfs://ip-172-31-53-48.ec2.internal:8020/user/shubhro2705854012/sb_proj_telco_churn/CASE4/telco_senior_cust_have_dependents_count' USING PigStorage(',');
+   STORE telco_senior_cust_have_dep_disc INTO 'hdfs://ip-172-31-53-48.ec2.internal:8020/user/shubhro2705854012/sb_proj_telco_churn/CASE4/telco_senior_cust_have_dep_discount' USING PigStorage(',');
+   
+
+5. Display customer id and their tenure whose tenure is more than 20 years and are using paperless billing method to save an environment
+ 
+   telco_cust_20_paperless = FILTER telco_churn_data BY tenure > 20 AND PaperlessBilling == 'Yes';
+   
+   telco_cust_20_paperless_disp = FOREACH telco_cust_20_paperless GENERATE customerID, tenure; 
+   
+   STORE telco_cust_20_paperless_disp INTO 'hdfs://ip-172-31-53-48.ec2.internal:8020/user/shubhro2705854012/sb_proj_telco_churn/CASE5/telco_cust_20_paperless_disp' USING PigStorage(',');
+
+6. Which is the most preferred internet service used by the customer, is it for Fibre optic or for DSL?
+	
+	telco_cust_internet_serv = FILTER telco_churn_data BY InternetService != 'No';
+	
+	telco_cust_internet_serv_grp = GROUP telco_cust_internet_serv BY InternetService;
+	
+	telco_cust_internet_cnt = FOREACH telco_cust_internet_serv_grp GENERATE group, FLATTEN(COUNT($1)) as serviceCount;
+	
+	telco_cust_internet_sort = ORDER telco_cust_internet_cnt BY serviceCount DESC;
+	
+	STORE telco_cust_internet_sort INTO 'hdfs://ip-172-31-53-48.ec2.internal:8020/user/shubhro2705854012/sb_proj_telco_churn/CASE6/telco_cust_internet_sort' USING PigStorage(',');
+	
+	
+7. Customer who are using Streaming movies option. Calculate its final bill by increasing the monthly bill by 9.5%
+
+	telco_cust_streamTV = FILTER telco_churn_data BY StreamingTV != 'No';
+	
+	telco_cust_streamTV_bill = FOREACH telco_cust_streamTV GENERATE *, ROUND_TO((MonthlyCharges * 1.0095),2) AS newMonthCharge, ROUND_TO((TotalCharges * 1.0095),2) AS newTotalCharge;
+	
+	STORE telco_cust_streamTV_bill INTO 'hdfs://ip-172-31-53-48.ec2.internal:8020/user/shubhro2705854012/sb_proj_telco_churn/CASE7/telco_cust_streamTV_added_bill' USING PigStorage(',');
+
+-----------------------------------------------------------------
+-----------------------------------------------------------------
+
+ Errors faced:
+ "<line 1, column 69> pig script failed to validate: org.apache.pig.backend.executionengine.ExecException: ERROR 1070: Could not res
+  olve pigStorage using imports: [, java.lang., org.apache.pig.builtin., org.apache.pig.impl.builtin.]"
+  
+ REASON: the case of "PigStorage" was incorrect i.e. I used "pigStorage" instead of "PigStorage" in LOAD command.
+ 
+ "<line 2, column 55> Could not infer the matching function for org.apache.pig.builtin.SUM as multiple or none of them fit. Please u
+se an explicit cast."
+
+  REASON: telco_total_charge = FOREACH telco_churn_data GENERATE SUM(TotalCharges); is not acceptable for automatic casting.
+		  I had to group the data and then GENERATE SUM(...)
+		  
+		  
+CASE-4
+2017-12-30 10:32:19,237 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1039: 
+<line 22, column 104> In alias telco_senior_cust_have_dependents, incompatible types in Equal Operator left hand side:int right ha
+nd side:chararray
+
+REASON: one of the fields have been marked as INT but the relation is passing it as chararray.
+
+grunt> telco_senior_cust_have_dependents_count = FOREACH telco_senior_cust_have_dep_grp GENERATE count($1);
+2017-12-30 10:36:48,019 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1070: Could not resolve count using imports: [, java
+.lang., org.apache.pig.builtin., org.apache.pig.impl.builtin.]
+
+REASON:  count is CASE Sensitive.
+
