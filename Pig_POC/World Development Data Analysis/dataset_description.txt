@@ -1,0 +1,22 @@
+This dataset is World Bank’s compilation of internationally comparable statistics
+about global development and the quality of people’s lives. It contains data
+about Agriculture & Rural Development, Aid Effectiveness, Climate Change,
+Economy & Growth, Education, Energy & Mining, Environment, External Debt,
+Financial Sector, Gender, Health, Infrastructure, Labor & Social Protection,
+Poverty, Private Sector, Public Sector, Science & Technology, Social Development,
+Trade, Urban Development.
+
+2 datasets:
+1) World_Development_Stat_Data.csv
+2) World_Development_Stat_Definition and Source.csv
+
+Series Name,                                                 Series Code,Country Name,Country Code,YR2000,YR2001,YR2002,YR2003,YR2004,YR2005,YR2006,YR2007,YR2008,YR2009,YR2010,YR2011,YR2012,YR2013,YR2014,YR2015
+Improved sanitation facilities (% of population with access),SH.STA.ACSN,Afghanistan, AFG,         23.4,  23.9,  24.5,  25.1,  25.7,  26.3,  26.9,  27.4,  28,    28.7,  29.3,  29.9,  30.5,  31.1,  31.8,  31.9
+Improved sanitation facilities (% of population with access),SH.STA.ACSN,Albania,     ALB,         83.4,  84.2,  85,    85.8,  86.6,  87.4,  88.1,  88.9,  89.6,  90.2,  90.9,  91.5,  92.1,  92.7,  93.2,  93.2
+Improved sanitation facilities (% of population with access),SH.STA.ACSN,Algeria,     DZA,         83.6,  84,    84.3,  84.7,  85,    85.3,  85.6,  85.8,  86.1,  86.4,  86.6,  86.8,  87,    87.2,  87.4,  87.6
+Improved sanitation facilities (% of population with access),SH.STA.ACSN,Togo,        TGO,         11.4,  11.4,  11.4,  11.4,  11.4,  11.4,  11.4,  11.4,  11.5,  11.5,  11.5,  11.5,  11.5,  11.6,  11.6,  11.6
+
+Series Name,                                 Series Code,      Country Name,  Country Code,YR2000,          YR2001,          YR2002,         YR2003,          YR2004,          YR2005,          YR2006,          YR2007,          YR2008,          YR2009,          YR2010,          YR2011,          YR2012,          YR2013,          YR2014,          YR2015
+Energy use (kg of oil equivalent per capita),EG.USE.PCAP.KG.OE,Albania,       ALB,         580.494764208924,597.265252650749,660.04798411018,648.168387059418,715.414483080102,719.584378082987,706.859407721917,679.861765101008,710.748498463347,732.316681804627,729.154372728518,764.968616564465,687.896259861998,801.329975005976,808.455839595944,..
+Energy use (kg of oil equivalent per capita),EG.USE.PCAP.KG.OE,Algeria,       DZA,         865.665960955193,856.212743715188,904.324688265802,948.959486307565,948.238188575855,973.878947816024,1027.73646626797,1073.99966110862,1069.20021577297,1149.37418512954,1109.89246057266,1135.74445950709,1223.59179070287,1241.03835715069,1321.09949366856,..
+Energy use (kg of oil equivalent per capita),EG.USE.PCAP.KG.OE,American Samoa,ASM,..,..,..,..,..,..,..,..,..,..,..,..,..,..,..,..
