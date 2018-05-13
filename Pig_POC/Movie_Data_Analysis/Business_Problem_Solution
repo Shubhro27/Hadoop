@@ -1,0 +1,32 @@
+####################################################################################################################
+#
+####################################################################################################################
+movie_data = LOAD 'pig_movies_data.csv' USING PigStorage(',') AS (srNo:int, mName:charArray, mYear:int, mRate:float, mDuration:int);
+~~~------
+Highest rating per year:
+
+movie_data_yearRate = FOREACH (GROUP movie_data BY mYear) GENERATE $0,MAX(movie_data.mRate);
+
+~~~------
+longest movie duration:
+movie_data_dur = FOREACH (GROUP movie_data ALL) GENERATE MAX(movie_data.mDuration);
+
+Ans: 28813
+~~~------
+oldest movie:
+
+movie_data_oldest = LIMIT (ORDER movie_data BY mYear) 1;
+
+Ans: (42665,Fantômas I: In the Shadow of the Guillotine,1913,2.9,3268)
+~~~------
+newest movie:
+
+movie_data_newest = LIMIT (ORDER movie_data BY mYear DESC) 1;
+
+Ans: (49561,The Square (Trailer),2014,3.6,154)
+~~~------
+movie with the highest rating:
+
+movie_rate_high = LIMIT(ORDER movie_data BY mRate DESC) 1;
+
+Ans: (37138,Orange Is the New Black: Season 1,2013,4.5,)
