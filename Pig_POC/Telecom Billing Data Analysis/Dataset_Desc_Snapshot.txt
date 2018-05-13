@@ -1,0 +1,13 @@
+This dataset is of Telco customer churn data. A telecommunications company is
+concerned about the number of customers leaving their landline business for
+cable competitors. It also helps to retain the customer by providing good
+services and launching new schemes, discounts at required times. It consist of
+CustomerID, gender, tenure, Senior citizens, contract etc.
+
+-----------------------------------------
+customerID,gender,SeniorCitizen,Partner,Dependents,tenure,PhoneService,MultipleLines,   InternetService,OnlineSecurity,      OnlineBackup,       DeviceProtection,   TechSupport,        StreamingTV,        StreamingMovies,    Contract,      PaperlessBilling,PaymentMethod,            MonthlyCharges,TotalCharges,Churn
+7590-VHVEG,Female,0,            Yes,    No,        1,     No,          No phone service,DSL,             No,                 Yes,                No,                 No,                 No,                 No,                 Month-to-month,Yes,             Electronic check,         29.85,         29.85,       No
+7795-CFOCW,Male,  0,            No,     No,        45,    No,          No phone service,DSL,             Yes,                No,                 Yes,                Yes,                No,                 No,                 One year,       No,             Bank transfer (automatic),42.3,          1840.75,     No
+7469-LKBCI,Male,  0,            No,     No,        16,    Yes,         No,              No,              No internet service,No internet service,No internet service,No internet service,No internet service,No internet service,Two year,       No,             Credit card (automatic),  18.95,         326.8,       No
+
+1452-KIOVK,Male,  0,            No,     Yes,22,Yes,Yes,Fiber optic,No,Yes,No,No,Yes,No,Month-to-month,Yes,Credit card (automatic),89.1,1949.4,No
