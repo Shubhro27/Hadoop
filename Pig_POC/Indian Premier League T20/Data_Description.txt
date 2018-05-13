@@ -1,0 +1,55 @@
+The IPL dataset contains cricket match played between Gujarat Lions Vs Sunrisers Hyderabad on 27/5/16 in Delhi.
+
+The data format is comma separated values. The top 19 rows contain data on the other details like participating team, venue, city and results of the match. It contains 12 columns made up of following: Ball, team batting, ball overs, bating team, batsmen on strike, Second batsmen, bowler, runs scored, extras, result, player who is out.
+
+Dataset is in : ipl.xls
+
+version,1,,,,,,,,,
+info,team,Gujarat Lions,,,,,,,,
+info,team,Sunrisers Hyderabad,,,,,,,,
+info,gender,male,,,,,,,,
+info,season,2016,,,,,,,,
+info,date,5/27/2016,,,,,,,,
+info,competition,Indian Premier League,,,,,,,,
+info,venue,Feroz Shah Kotla,,,,,,,,
+info,city,Delhi,,,,,,,,
+info,toss_winner,Sunrisers Hyderabad,,,,,,,,
+info,toss_decision,field,,,,,,,,
+info,player_of_match,DA Warner,,,,,,,,
+info,umpire,M Erasmus,,,,,,,,
+info,umpire,CK Nandan,,,,,,,,
+info,reserve_umpire,Navdeep Singh,,,,,,,,
+info,tv_umpire,C Shamshuddin,,,,,,,,
+info,match_referee,RS Mahanama,,,,,,,,
+info,winner,Sunrisers Hyderabad,,,,,,,,
+info,winner_wickets,4,,,,,,,,
+ball,1,0.1,Gujarat Lions,ER Dwivedi,BB McCullum,B Kumar,1,0,,
+ball,1,0.2,Gujarat Lions,BB McCullum,ER Dwivedi,B Kumar,1,0,,
+ball,1,0.3,Gujarat Lions,ER Dwivedi,BB McCullum,B Kumar,0,0,,
+ball,1,0.4,Gujarat Lions,ER Dwivedi,BB McCullum,B Kumar,4,0,,
+ball,1,0.5,Gujarat Lions,ER Dwivedi,BB McCullum,B Kumar,0,0,,
+ball,1,0.6,Gujarat Lions,ER Dwivedi,BB McCullum,B Kumar,0,1,,
+ball,1,0.7,Gujarat Lions,ER Dwivedi,BB McCullum,B Kumar,0,0,caught,ER Dwivedi
+.
+.
+.
+.
+ball,2,12.3,Sunrisers Hyderabad,BCJ Cutting,DA Warner,S Kaushik,0,0,caught,BCJ Cutting
+ball,2,12.4,Sunrisers Hyderabad,NV Ojha,DA Warner,S Kaushik,0,0,,
+ball,2,12.5,Sunrisers Hyderabad,NV Ojha,DA Warner,S Kaushik,1,0,,
+ball,2,12.6,Sunrisers Hyderabad,DA Warner,NV Ojha,S Kaushik,6,0,,
+ball,2,13.1,Sunrisers Hyderabad,NV Ojha,DA Warner,DS Kulkarni,1,0,,
+ball,2,13.2,Sunrisers Hyderabad,DA Warner,NV Ojha,DS Kulkarni,2,0,,
+ball,2,13.3,Sunrisers Hyderabad,DA Warner,NV Ojha,DS Kulkarni,0,0,,
+ball,2,13.4,Sunrisers Hyderabad,DA Warner,NV Ojha,DS Kulkarni,1,0,,
+ball,2,13.5,Sunrisers Hyderabad,NV Ojha,DA Warner,DS Kulkarni,1,0,,
+ball,2,13.6,Sunrisers Hyderabad,DA Warner,NV Ojha,DS Kulkarni,1,0,,
+ball,2,14.1,Sunrisers Hyderabad,DA Warner,NV Ojha,DR Smith,1,0,,
+ball,2,14.2,Sunrisers Hyderabad,NV Ojha,DA Warner,DR Smith,1,0,,
+ball,2,14.3,Sunrisers Hyderabad,DA Warner,NV Ojha,DR Smith,6,0,,
+ball,2,14.4,Sunrisers Hyderabad,DA Warner,NV Ojha,DR Smith,4,0,,
+ball,2,14.5,Sunrisers Hyderabad,DA Warner,NV Ojha,DR Smith,1,0,,
+ball,2,14.6,Sunrisers Hyderabad,NV Ojha,DA Warner,DR Smith,6,0,,
+ball,2,15.1,Sunrisers Hyderabad,DA Warner,NV Ojha,DJ Bravo,0,0,,
+ball,2,15.2,Sunrisers Hyderabad,DA Warner,NV Ojha,DJ Bravo,0,0,,
+ball,2,15.3,Sunrisers Hyderabad,DA Warner,NV Ojha,DJ Bravo,1,0,,
