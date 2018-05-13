@@ -1,0 +1,39 @@
+Demonetization_tweets.csv (Sample of data):
+
+Comprises of:
+id  Text (Tweets)  favorited  favoriteCount  replyToSN  created  truncated  replyToSID  id  replyToUID  statusSource  screenName  retweetCount  isRetweet  retweeted
+
+1,RT @rssurjewala: Critical question: Was PayTM informed about #Demonetization edict by PM? It's clearly fishy and requires full disclosure &amp;…,FALSE,0,NA,11/23/2016 18:40,FALSE,NA,801495654778413000,NA,"<a href=""http://twitter.com/download/android"" rel=""nofollow"">Twitter for Android</a>",PRAMODKAUSHIK9,66,TRUE,FALSE,FALSE,0,NA,11/23/2016 18:40,FALSE,NA,801495656976318000,NA,"<a href=""http://twitter.com/download/android"" rel=""nofollow"">Twitter for Android</a>",HASHTAGFARZIWAL,331,TRUE,FALSE
+2,RT @Hemant_80: Did you vote on #Demonetization on Modi survey app?,FALSE,0,NA,11/23/2016 18:40,FALSE,NA,801495544266821000,NA,"<a href=""http://twitter.com/download/android"" rel=""nofollow"">Twitter for Android</a>",rahulja13034944,12,TRUE,FALSE,FALSE,0,NA,11/23/2016 18:40,FALSE,NA,801495654778413000,NA,"<a href=""http://twitter.com/download/android"" rel=""nofollow"">Twitter for Android</a>",PRAMODKAUSHIK9,66,TRUE,FALSE
+3,"RT @roshankar: Former FinSec, RBI Dy Governor, CBDT Chair + Harvard Professor lambaste #Demonetization.If not for Aam Aadmi, listen to th…",FALSE,0,NA,11/23/2016 18:39,FALSE,NA,801495527024160000,NA,"<a href=""http://twitter.com/download/android"" rel=""nofollow"">Twitter for Android</a>",deeptiyvd,338,TRUE,FALSE,FALSE,0,NA,11/23/2016 18:40,FALSE,NA,801495544266821000,NA,"<a href=""http://twitter.com/download/android"" rel=""nofollow"">Twitter for Android</a>",rahulja13034944,12,TRUE,FALSE
+4,RT @ANI_news: Gurugram (Haryana): Post office employees provide cash exchange to patients in hospitals #demonetization https://t.co/uGMxUP9…,FALSE,0,NA,11/23/2016 18:39,FALSE,NA,801495445583360000,NA,"<a href=""http://cpimharyana.com"" rel=""nofollow"">CPIMBadli</a>",CPIMBadli,120,TRUE,FALSE,FALSE,0,NA,11/23/2016 18:39,FALSE,NA,801495527024160000,NA,"<a href=""http://twitter.com/download/android"" rel=""nofollow"">Twitter for Android</a>",deeptiyvd,338,TRUE,FALSE
+
+AFINN.txt:(dictionary which consists of 2500 words which are rated from +5 to -5 depending on their meaning.
+		   http://www2.imm.dtu.dk/pubdb/views/publication_details.php?id=6010)
+abandon	-2
+abandoned	-2
+abandons	-2
+abducted	-2
+abduction	-2
+abductions	-2
+abhor	-3
+abhorred	-3
+abhorrent	-3
+abhors	-3
+abilities	2
+ability	2
+aboard	1
+absentee	-1
+absentees	-1
+absolve	2
+absolved	2
+absolves	2
+absolving	2
+absorbed	1
+abuse	-3
+abused	-3
+abuses	-3
+abusive	-3
+accept	1
+accepted	1
+accepting	1
