@@ -1,0 +1,147 @@
+load the data into pig using PigStorage: 
+load_tweets = LOAD 'demonetization_tweets.csv' USING PigStorage(',');
+
+~~~------------------------------------------------------------------------
+
+extract the id and the tweet_text:
+extract_details = FOREACH load_tweets GENERATE $0 as id,$1 as text;
+
+O/p(Sample):
+(1,RT @rssurjewala: Critical question: Was PayTM informed about #Demonetization edict by PM? It's clearly fishy and requires full 
+disclosure &amp;…)
+(2,RT @Hemant_80: Did you vote on #Demonetization on Modi survey app?)
+(3,"RT @roshankar: Former FinSec)
+(4,RT @ANI_news: Gurugram (Haryana): Post office employees provide cash exchange to patients in hospitals #demonetization https://
+t.co/uGMxUP9…)
+(5,RT @satishacharya: Reddy Wedding! @mail_today cartoon #demonetization #ReddyWedding https://t.co/u7gLNrq31F)
+(6,"@DerekScissors1: India’s #demonetization: #Blackmoney a symptom)
+(7,RT @gauravcsawant: Rs 40 lakh looted from a bank in Kishtwar in J&amp;K. Third such incident since #demonetization. That's how 
+terrorists have…)
+(8,"RT @Joydeep_911: Calling all Nationalists to join...Walk for #CorruptionFreeIndia and spread the benefits of #Demonetization a
+mong the mas…")
+(9,"RT @sumitbhati2002: Many opposition leaders are with @narendramodi on the #Demonetization And respect their decision)
+(10,National reform now destroyed even the essence of sagan. Such instances urge giving #demonetization a second though… https://t
+.co/eyySIREiUq)
+
+~~~------------------------------------------------------------------------
+divide the tweet_text into words to calculate the sentiment of the whole tweet:
+tokens = foreach extract_details generate id,text, FLATTEN(TOKENIZE(text)) As word;
+
+O/p(Sample): (For every word in the tweet_text, each word will be taken and created as a new row.)
+(1,RT @rssurjewala: Critical question: Was PayTM informed about #Demonetization edict by PM? It's clearly fishy and requires full 
+disclosure &amp;…,RT)
+(1,RT @rssurjewala: Critical question: Was PayTM informed about #Demonetization edict by PM? It's clearly fishy and requires full 
+disclosure &amp;…,Was)
+(1,RT @rssurjewala: Critical question: Was PayTM informed about #Demonetization edict by PM? It's clearly fishy and requires full 
+disclosure &amp;…,PayTM)
+(1,RT @rssurjewala: Critical question: Was PayTM informed about #Demonetization edict by PM? It's clearly fishy and requires full 
+disclosure &amp;…,about)
+(1,RT @rssurjewala: Critical question: Was PayTM informed about #Demonetization edict by PM? It's clearly fishy and requires full 
+disclosure &amp;…,edict)
+(1,RT @rssurjewala: Critical question: Was PayTM informed about #Demonetization edict by PM? It's clearly fishy and requires full 
+disclosure &amp;…,Critical)
+(1,RT @rssurjewala: Critical question: Was PayTM informed about #Demonetization edict by PM? It's clearly fishy and requires full 
+disclosure &amp;…,informed)
+(1,RT @rssurjewala: Critical question: Was PayTM informed about #Demonetization edict by PM? It's clearly fishy and requires full 
+disclosure &amp;…,question:)
+(1,RT @rssurjewala: Critical question: Was PayTM informed about #Demonetization edict by PM? It's clearly fishy and requires full 
+disclosure &amp;…,@rssurjewala:)
+(1,RT @rssurjewala: Critical question: Was PayTM informed about #Demonetization edict by PM? It's clearly fishy and requires full 
+disclosure &amp;…,#Demonetization)
+
+DESCRIBE tokens;
+O/p(Sample):
+tokens: {id: bytearray,text: bytearray,word: chararray}
+
+~~~---------------------------------------------------------------------------
+Sentiment analysis:
+
+AFINN.txt file : is a dictionary which consists of 2500 words which are rated from +5 to -5 depending on their meaning.
+
+dictionary = load 'AFINN.txt' using PigStorage('\t') AS(word:chararray,rating:int);
+
+O/p(Sample):
+(proudly,2)
+(provoke,-1)
+(provoked,-1)
+(provokes,-1)
+(provoking,-1)
+(pseudoscience,-3)
+(punish,-2)
+(punished,-2)
+(punishes,-2)
+(punitive,-2)
+(pushy,-1)
+(puzzled,-2)
+(quaking,-2)
+(questionable,-2)
+
+~~~--------------------------------------------------------------------------
+
+join the tokens statement and the dictionary contents,
+
+word_rating = join tokens by word left outer, dictionary by word using 'replicated';
+
+extract the id,tweet text and word rating(from the dictionary),
+rating = foreach word_rating generate tokens::id as id,tokens::text as text, dictionary::rating as rate;
+~~~---------------------------------------------------------------------------
+group the rating of all the words in a tweet (grouped by two constraints, id and tweet text.):
+
+word_group = group rating by (id,text);
+
+Average operation on the rating of the words per each tweet:
+avg_rate = foreach word_group generate group, AVG(rating.rate) as tweet_rating;
+
+~~~---------------------------------------------------------------------------
+Positive Reviews:
+
+positive_tweets = filter avg_rate by tweet_rating>=0;
+
+O/p(Sample):
+
+((1,RT @rssurjewala: Critical question: Was PayTM informed about #Demonetization edict by PM? It's clearly fishy and requires full
+ disclosure &amp;…),1.0)
+((8,"RT @Joydeep_911: Calling all Nationalists to join...Walk for #CorruptionFreeIndia and spread the benefits of #Demonetization 
+among the mas…"),2.0)
+((12,RT @Joydas: Question in Narendra Modi App where PM is taking feedback if people support his #DeMonetization strategy https://
+t.co/pYgK8Rmg7r),2.0)
+((19,RT @pGurus1: #Demonetization The co-operative banking sector in Kerala is as good as a tax haven. Is Kerala a Black Money HQ?
+ https://t.co/…),3.0)
+((24,"RT @MahikaInfra: @narendramodi@Swamy39The success of #Demonetization will depend on how swiftly govt replenish the currency.
+Pls avoid Ba…"),1.0)
+((44,@dineshgrao you have 12.5 k followers yet you are not getting enough likes for your tweets against #demonetization. You need 
+to introspect.),2.0)
+((50,RT @Punitspeaks: Survey result so far by @PMOIndia on #Demonetization. 5 lakh response in 24 hrs. 90% supports note ban. #Mer
+aDeshBadalRaha…),2.0)
+((52,RT @Punitspeaks: Survey result so far by @PMOIndia on #Demonetization. 5 lakh response in 24 hrs. 90% supports note ban. #Mer
+aDeshBadalRaha…),2.0)
+((59,RT @pGurus1: CPI-M opposes Co-op Banks in West Bengal but supports them in Kerala! Y Pawar U-turned on #Demonetization https:
+//t.co/ThzaV7r…),2.0)
+((61,"RT @ZeeNewsSports: #Demonetization: @harbhajan_singh gives hilarious 'shagun' suggestion to those struggling with wedding se
+asonhttps://t…"),0.0)
+
+~~~-----------------------------------------------------------------------------------
+negative tweets:
+
+negative_tweets = filter avg_rate by tweet_rating<0;
+
+O/p(Sample):
+
+((80,"RT @roshankar: Harvard's Larry Summers calls #Demonetization as poor policy with disproportionate negative impact on poor/tr
+ade.https://t…"),-2.0)
+((82,"RT @harshkkapoor: #DeMonetization survey results after 24 hours 5Lacs opinions Amazing response&amp; Commitment in fight aga
+inst Blackmoney@na…"),-1.0)
+((86,"RT @roshankar: Harvard's Larry Summers calls #Demonetization as poor policy with disproportionate negative impact on poor/tr
+ade.https://t…"),-2.0)
+((87,RT roshankar: Harvard's Larry Summers calls #Demonetization as poor policy with disproportionate negative impact o… https://t
+.co/vv9qtRqqSI),-2.0)
+((95,"RT @ashu3page: Man ends life over fund shortage ahead of daughter’s wedding in Gujarat. #Demonetization  https://t.co/DGAI5c
+f05y https://t…"),-2.0)
+((97,"RT @kapil_kausik: #Doltiwal I mean #JaiChandKejriwal is ""hurt"" by #Demonetization as the same has rendered USELESS <ed><U+
+00A0><U+00BD><ed><U+00B1><U+0089> ""acquired funds"" No wo…"),-2.0)
+((100,RT @ashu3page: A man shaved his head at Jantar-Mantar in protest against #Demonetization  on 13th day of the move. https://t
+.co/IeXuia3J0X),-2.0)
+((103,"RT @roshankar: Harvard's Larry Summers calls #Demonetization as poor policy with disproportionate negative impact on poor/t
+rade. https://t…"),-2.0)
+((112,"RT @kapil_kausik: #Doltiwal I mean #JaiChandKejriwal is ""hurt"" by #Demonetization as the same has rendered USELESS <ed><U
++00A0><U+00BD><ed><U+00B1><U+0089> ""acquired funds"" No wo…"),-2.0)
