@@ -1,0 +1,275 @@
+This dataset is World Bank’s compilation of internationally comparable statistics
+about global development and the quality of people’s lives. It contains data
+about Agriculture & Rural Development, Aid Effectiveness, Climate Change,
+Economy & Growth, Education, Energy & Mining, Environment, External Debt,
+Financial Sector, Gender, Health, Infrastructure, Labor & Social Protection,
+Poverty, Private Sector, Public Sector, Science & Technology, Social Development,
+Trade, Urban Development.
+
+Series Name,                                                 Series Code,Country Name,Country Code,YR2000,YR2001,YR2002,YR2003,YR2004,YR2005,YR2006,YR2007,YR2008,YR2009,YR2010,YR2011,YR2012,YR2013,YR2014,YR2015
+Improved sanitation facilities (% of population with access),SH.STA.ACSN,Afghanistan, AFG,         23.4,  23.9,  24.5,  25.1,  25.7,  26.3,  26.9,  27.4,  28,    28.7,  29.3,  29.9,  30.5,  31.1,  31.8,  31.9
+Improved sanitation facilities (% of population with access),SH.STA.ACSN,Albania,     ALB,         83.4,  84.2,  85,    85.8,  86.6,  87.4,  88.1,  88.9,  89.6,  90.2,  90.9,  91.5,  92.1,  92.7,  93.2,  93.2
+Improved sanitation facilities (% of population with access),SH.STA.ACSN,Algeria,     DZA,         83.6,  84,    84.3,  84.7,  85,    85.3,  85.6,  85.8,  86.1,  86.4,  86.6,  86.8,  87,    87.2,  87.4,  87.6
+Improved sanitation facilities (% of population with access),SH.STA.ACSN,Togo,        TGO,         11.4,  11.4,  11.4,  11.4,  11.4,  11.4,  11.4,  11.4,  11.5,  11.5,  11.5,  11.5,  11.5,  11.6,  11.6,  11.6
+
+Series Name,                                 Series Code,      Country Name,  Country Code,YR2000,          YR2001,          YR2002,         YR2003,          YR2004,          YR2005,          YR2006,          YR2007,          YR2008,          YR2009,          YR2010,          YR2011,          YR2012,          YR2013,          YR2014,          YR2015
+Energy use (kg of oil equivalent per capita),EG.USE.PCAP.KG.OE,Albania,       ALB,         580.494764208924,597.265252650749,660.04798411018,648.168387059418,715.414483080102,719.584378082987,706.859407721917,679.861765101008,710.748498463347,732.316681804627,729.154372728518,764.968616564465,687.896259861998,801.329975005976,808.455839595944,..
+Energy use (kg of oil equivalent per capita),EG.USE.PCAP.KG.OE,Algeria,       DZA,         865.665960955193,856.212743715188,904.324688265802,948.959486307565,948.238188575855,973.878947816024,1027.73646626797,1073.99966110862,1069.20021577297,1149.37418512954,1109.89246057266,1135.74445950709,1223.59179070287,1241.03835715069,1321.09949366856,..
+Energy use (kg of oil equivalent per capita),EG.USE.PCAP.KG.OE,American Samoa,ASM,..,..,..,..,..,..,..,..,..,..,..,..,..,..,..,..
+---------------------------------------------------------------------------------------------------
+hdfs dfs -get 'shubhro2705854012/sb_proj_world_development/world_dev_data'
+---------------------------------------------------------------------------------------------------
+https://www.wikihow.com/Calculate-Growth-Rate : formula I am using
+http://pages.uoregon.edu/rgp/PPPM613/class8a.htm : other formula.
+
+WD_sanity_facility_data2 = foreach WD_sanity_facility_dataA 
+						   generate SeriesName,SeriesCode,CountryName,CountryCode,
+						   (YR2000 is NULL ? 0 : YR2000),
+						   (YR2001 is NULL ? 0 : YR2001),
+						   (YR2002 is NULL ? 0 : YR2002),
+						   (YR2003 is NULL ? 0 : YR2003),
+						   (YR2004 is NULL ? 0 : YR2004),
+						   (YR2005 is NULL ? 0 : YR2005),
+						   (YR2006 is NULL ? 0 : YR2006),
+						   (YR2007 is NULL ? 0 : YR2007),
+						   (YR2008 is NULL ? 0 : YR2008),
+						   (YR2009 is NULL ? 0 : YR2009),
+						   (YR2010 is NULL ? 0 : YR2010),
+						   (YR2011 is NULL ? 0 : YR2011),
+						   (YR2012 is NULL ? 0 : YR2012),
+						   (YR2013 is NULL ? 0 : YR2013),
+						   (YR2014 is NULL ? 0 : YR2014),
+						   (YR2015 is NULL ? 0 : YR2015);
+
+Create a PIG relation:
+SeriesName:chararray,SeriesCode:chararray,CountryName:chararray,CountryCode:chararray,
+YR2000:double,YR2001:double,YR2002:double,YR2003:double,YR2004:double,YR2005:double,
+YR2006:double,YR2007:double,YR2008:double,YR2009:double,YR2010:double,YR2011:double,
+YR2012:double,YR2013:double,YR2014:double,YR2015:double
+
+##############PIG-UDF: Common routines for all cases#######################
+REGISTER './world_dev_stat.py' using jython as sb_world_stat_udf;
+
+world_dev_data = LOAD 'World_Development_Stat_Data.csv' USING PigStorage(',') AS (SeriesName:chararray,SeriesCode:chararray,CountryName:chararray,CountryCode:chararray,YR2000:double,YR2001:double,YR2002:double,YR2003:double,YR2004:double,YR2005:double,YR2006:double,YR2007:double,YR2008:double,YR2009:double,YR2010:double,YR2011:double,YR2012:double,YR2013:double,YR2014:double,YR2015:double);
+
+world_dev_data_route = FOREACH world_dev_data GENERATE 
+						SeriesName,SeriesCode,CountryName,CountryCode,
+						(YR2000 is NULL ? 0 : YR2000) AS Yr2000,
+						(YR2001 is NULL ? 0 : YR2001) AS Yr2001,
+						(YR2002 is NULL ? 0 : YR2002) AS Yr2002,
+						(YR2003 is NULL ? 0 : YR2003) AS Yr2003,
+						(YR2004 is NULL ? 0 : YR2004) AS Yr2004,
+						(YR2005 is NULL ? 0 : YR2005) AS Yr2005,
+						(YR2006 is NULL ? 0 : YR2006) AS Yr2006,
+						(YR2007 is NULL ? 0 : YR2007) AS Yr2007,
+						(YR2008 is NULL ? 0 : YR2008) AS Yr2008,
+						(YR2009 is NULL ? 0 : YR2009) AS Yr2009,
+						(YR2010 is NULL ? 0 : YR2010) AS Yr2010,
+						(YR2011 is NULL ? 0 : YR2011) AS Yr2011,
+						(YR2012 is NULL ? 0 : YR2012) AS Yr2012,
+						(YR2013 is NULL ? 0 : YR2013) AS Yr2013,
+						(YR2014 is NULL ? 0 : YR2014) AS Yr2014,
+						(YR2015 is NULL ? 0 : YR2015) AS Yr2015;
+						
+STORE world_dev_data_route INTO 'sb_proj_world_development/world_dev_data' USING PigStorage(',');
+						
+##################################################################################
+
+Possible Exploration Ideas:
+1) Top 10 Reports:
+	a) Top 10 Improved sanitation facilities (% of population with access)
+
+world_sanitation_fac_filter = FILTER world_dev_data_route BY SeriesCode == 'SH.STA.ACSN';
+
+world_sanitation_fac_data1 = FOREACH world_sanitation_fac_filter GENERATE CountryName,CountryCode,TOTUPLE(Yr2000,Yr2001,Yr2002,Yr2003,Yr2004,Yr2005,Yr2006,Yr2007,Yr2008,Yr2009,Yr2010,Yr2011,Yr2012,Yr2013,Yr2014,Yr2015) AS sanitationFacTuple; 
+
+world_sanitation_access_percent = FOREACH world_sanitation_fac_data1 GENERATE CountryName,CountryCode,sb_world_stat_udf.process_tuple(sanitationFacTuple) AS growth_percent;
+
+world_sanitation_access_percent_ignore0 = FILTER world_sanitation_access_percent BY growth_percent != 0.0;
+
+world_sanitation_access_per_DESC = ORDER world_sanitation_access_percent_ignore0 BY growth_percent DESC;
+
+world_sanitation_access_highest_10 = LIMIT world_sanitation_access_per_DESC 10;
+
+STORE world_sanitation_access_highest_10 INTO 'sb_proj_world_development/CASE1A/Sanity_Access_Highest_Growth' USING PigStorage(',');
+
+	b) Top 10 Energy use (kg of oil equivalent per capita)
+		i.e. average energy use.
+
+		world_energy_use_filter = FILTER world_dev_data_route BY SeriesCode == 'EG.USE.PCAP.KG.OE';
+
+		world_energy_use_data1 = FOREACH world_energy_use_filter GENERATE CountryName,CountryCode,TOTUPLE(Yr2000,Yr2001,Yr2002,Yr2003,Yr2004,Yr2005,Yr2006,Yr2007,Yr2008,Yr2009,Yr2010,Yr2011,Yr2012,Yr2013,Yr2014,Yr2015) AS energyUseTuple; 
+
+		world_energy_use_avg = FOREACH world_energy_use_data1 GENERATE CountryName,CountryCode,sb_world_stat_udf.tuple_average(energyUseTuple) AS energy_use_avg;
+	
+		world_energy_use_avg_ignorezero = FILTER world_energy_use_avg BY energy_use_avg != 0.0;
+
+		world_energy_use_avg_DESC = ORDER world_energy_use_avg_ignorezero BY energy_use_avg DESC;
+
+		world_energy_use_top_10 = LIMIT world_energy_use_avg_DESC 10;
+
+		STORE world_energy_use_top_10 INTO 'shubhro2705854012/sb_proj_world_development/CASE1B/world_highest_average_energy_use' USING PigStorage(',');
+	
+	c) Top 10 CO2 emissions (metric tons per capita)
+		world_CO2_emission_filter = FILTER world_dev_data_route BY SeriesCode == 'EN.ATM.CO2E.PC';
+
+		world_CO2_emission_data1 = FOREACH world_CO2_emission_filter GENERATE CountryName,CountryCode,TOTUPLE(Yr2000,Yr2001,Yr2002,Yr2003,Yr2004,Yr2005,Yr2006,Yr2007,Yr2008,Yr2009,Yr2010,Yr2011,Yr2012,Yr2013,Yr2014,Yr2015) AS emissionTuple; 
+
+		world_CO2_emission_avg = FOREACH world_CO2_emission_data1 GENERATE CountryName,CountryCode,sb_world_stat_udf.tuple_average(emissionTuple) AS emission_avg;
+
+		world_CO2_emission_avg_ignorezero = FILTER world_CO2_emission_avg BY emission_avg != 0.0;
+
+		world_CO2_emission_avg_DESC = ORDER world_CO2_emission_avg_ignorezero BY emission_avg DESC;
+
+		world_CO2_emission_top_10 = LIMIT world_CO2_emission_avg_DESC 10;
+
+		STORE world_CO2_emission_top_10 INTO 'shubhro2705854012/sb_proj_world_development/CASE1C/world_highest_CO2_emission' USING PigStorage(',');
+
+	
+	d) Top 10 Improved water source (% of population with access)
+		world_water_src_filter = FILTER world_dev_data_route BY SeriesCode == 'SH.H2O.SAFE.ZS';
+
+		world_water_src_data1 = FOREACH world_water_src_filter GENERATE CountryName,CountryCode,TOTUPLE(Yr2000,Yr2001,Yr2002,Yr2003,Yr2004,Yr2005,Yr2006,Yr2007,Yr2008,Yr2009,Yr2010,Yr2011,Yr2012,Yr2013,Yr2014,Yr2015) AS waterstatsTuple; 
+
+		world_water_src_percent = FOREACH world_water_src_data1 GENERATE CountryName,CountryCode,sb_world_stat_udf.process_tuple(waterstatsTuple) AS src_growth_percent;
+
+		world_water_src_per_DESC = ORDER world_water_src_percent BY src_growth_percent DESC;
+
+		world_water_src_improv_top_10 = LIMIT world_water_src_per_DESC 10;
+
+		STORE world_water_src_improv_top_10 INTO 'shubhro2705854012/sb_proj_world_development/CASE1D/Country_improv_H20src' USING PigStorage(',');
+
+
+	e) Top 10 Electric power consumption (kWh per capita)
+		world_power_consump_filter = FILTER world_dev_data_route BY SeriesCode == 'EG.USE.ELEC.KH.PC';
+
+		world_power_consump_data1 = FOREACH world_power_consump_filter GENERATE CountryName,CountryCode,TOTUPLE(Yr2000,Yr2001,Yr2002,Yr2003,Yr2004,Yr2005,Yr2006,Yr2007,Yr2008,Yr2009,Yr2010,Yr2011,Yr2012,Yr2013,Yr2014,Yr2015) AS powerConsumpTuple; 
+
+		world_power_consump_avg = FOREACH world_power_consump_data1 GENERATE CountryName,CountryCode,sb_world_stat_udf.tuple_average(powerConsumpTuple) AS power_consump_avg;
+
+		world_power_consump_avg_ignorezero = FILTER world_power_consump_avg BY power_consump_avg != 0.0;
+
+		world_power_consump_avg_DESC = ORDER world_power_consump_avg_ignorezero BY power_consump_avg DESC;
+
+		world_power_consump_top_10 = LIMIT world_power_consump_avg_DESC 10;
+
+		STORE world_power_consump_top_10 INTO 'shubhro2705854012/sb_proj_world_development/CASE1E/world_highest_power_consumption' USING PigStorage(',');
+
+	f) Top 10 Forest area (sq. km)
+		world_forest_area_filter = FILTER world_dev_data_route BY SeriesCode == 'AG.LND.FRST.K2';
+
+		world_forest_area_data1 = FOREACH world_forest_area_filter GENERATE CountryName,CountryCode,TOTUPLE(Yr2000,Yr2001,Yr2002,Yr2003,Yr2004,Yr2005,Yr2006,Yr2007,Yr2008,Yr2009,Yr2010,Yr2011,Yr2012,Yr2013,Yr2014,Yr2015) AS forestTuple; 
+
+		world_forest_area_avg = FOREACH world_forest_area_data1 GENERATE CountryName,CountryCode,sb_world_stat_udf.tuple_average(forestTuple) AS forest_area_avg;
+
+		#world_forest_area_avg_ignorezero = FILTER world_power_consump_avg BY forest_area_avg != 0.0;
+
+		world_forest_area_avg_DESC = ORDER world_forest_area_avg BY forest_area_avg DESC;
+
+		world_forest_area_top_10 = LIMIT world_forest_area_avg_DESC 10;
+
+		STORE world_forest_area_top_10 INTO 'shubhro2705854012/sb_proj_world_development/CASE1F/world_largest_forest_area' USING PigStorage(',');
+
+	g) Top 10 Exports of goods and services (% of GDP)
+		world_export_filter = FILTER world_dev_data_route BY SeriesCode == 'NE.EXP.GNFS.ZS';
+
+		world_export_data1 = FOREACH world_export_filter GENERATE CountryName,CountryCode,TOTUPLE(Yr2000,Yr2001,Yr2002,Yr2003,Yr2004,Yr2005,Yr2006,Yr2007,Yr2008,Yr2009,Yr2010,Yr2011,Yr2012,Yr2013,Yr2014,Yr2015) AS exportTuple; 
+
+		world_export_avg = FOREACH world_export_data1 GENERATE CountryName,CountryCode,sb_world_stat_udf.tuple_average(exportTuple) AS export_avg;
+
+		world_forest_area_avg_ignorezero = FILTER world_export_avg BY export_avg != 0.0;
+
+		world_export_avg_DESC = ORDER world_export_avg BY export_avg DESC;
+
+		world_export_top_10 = LIMIT world_export_avg_DESC 10;
+
+		STORE world_export_top_10 INTO 'shubhro2705854012/sb_proj_world_development/CASE1G/world_highest_exporter' USING PigStorage(',');
+
+	h) Top 10 Imports of goods and services (% of GDP)
+		world_import_filter = FILTER world_dev_data_route BY SeriesCode == 'NE.IMP.GNFS.ZS';
+
+		world_import_data1 = FOREACH world_import_filter GENERATE CountryName,CountryCode,TOTUPLE(Yr2000,Yr2001,Yr2002,Yr2003,Yr2004,Yr2005,Yr2006,Yr2007,Yr2008,Yr2009,Yr2010,Yr2011,Yr2012,Yr2013,Yr2014,Yr2015) AS importTuple; 
+
+		world_import_avg = FOREACH world_import_data1 GENERATE CountryName,CountryCode,sb_world_stat_udf.tuple_average(importTuple) AS import_avg;
+
+		world_import_avg_ignorezero = FILTER world_import_avg BY import_avg != 0.0;
+
+		world_import_avg_DESC = ORDER world_import_avg_ignorezero BY import_avg DESC;
+
+		world_import_top_10 = LIMIT world_import_avg_DESC 10;
+
+		STORE world_import_top_10 INTO 'shubhro2705854012/sb_proj_world_development/CASE1H/world_highest_importer' USING PigStorage(',');
+
+
+2) Least 5 Reports:
+	a) Least 5 Improved sanitation facilities (% of population with access)
+
+		world_sanitation_access_per_ASC = ORDER world_sanitation_access_percent_ignore0 BY growth_percent;
+
+		world_sanitation_access_least_5 = LIMIT world_sanitation_access_per_ASC 5;
+
+		STORE world_sanitation_access_least_5 INTO 'shubhro2705854012/sb_proj_world_development/CASE2A/Sanity_Access_Lowest_Growth' USING PigStorage(',');
+
+	b) Least 5 Energy use (kg of oil equivalent per capita)
+
+		world_energy_use_avg_ASC = ORDER world_energy_use_avg_ignorezero BY energy_use_avg ASC;
+
+		world_energy_use_least_5 = LIMIT world_energy_use_avg_ASC 5;
+
+		STORE world_energy_use_least_5 INTO 'shubhro2705854012/sb_proj_world_development/CASE2B/world_least_average_energy_use' USING PigStorage(',');
+
+	c) Least 5 CO2 emissions (metric tons per capita)
+		world_CO2_emission_avg_ASC = ORDER world_CO2_emission_avg_ignorezero BY emission_avg ASC;
+
+		world_CO2_emission_least_5 = LIMIT world_CO2_emission_avg_ASC 5;
+
+		STORE world_CO2_emission_least_5 INTO 'shubhro2705854012/sb_proj_world_development/CASE2C/world_least_CO2_emission' USING PigStorage(',');
+
+	d) Least 5 Improved water source (% of population with access)
+		world_water_src_percent_ignorezero = FILTER world_water_src_percent BY src_growth_percent != 0.0;
+			
+		world_water_src_per_ASC = ORDER world_water_src_percent_ignorezero BY src_growth_percent ASC;
+
+		world_water_src_improv_least_5 = LIMIT world_water_src_per_ASC 5;
+
+		STORE world_water_src_improv_least_5 INTO 'shubhro2705854012/sb_proj_world_development/CASE2D/Country_least_improv_H2)src' USING PigStorage(',');
+
+	e) Least 5 Electric power consumption (kWh per capita)
+		world_power_consump_avg_ASC = ORDER world_power_consump_avg_ignorezero BY power_consump_avg ASC;
+
+		world_power_consump_least_5 = LIMIT world_power_consump_avg_ASC 5;
+
+		STORE world_power_consump_least_5 INTO 'shubhro2705854012/sb_proj_world_development/CASE2E/world_least_power_consumption' USING PigStorage(',');
+
+	f) Least 5 Forest area (sq. km)
+		world_forest_area_avg_ASC = ORDER world_forest_area_avg BY forest_area_avg ASC;
+
+		world_forest_area_least_5 = LIMIT world_forest_area_avg_ASC 5;
+
+		STORE world_forest_area_least_5 INTO 'shubhro2705854012/sb_proj_world_development/CASE2F/world_small_forest_area' USING PigStorage(',');
+
+
+	g) Least 5 Exports of goods and services (% of GDP)
+		world_export_avg_ASC = ORDER world_forest_area_avg_ignorezero BY export_avg ASC;
+
+		world_export_least_5 = LIMIT world_export_avg_ASC 5;
+
+		STORE world_export_least_5 INTO 'shubhro2705854012/sb_proj_world_development/CASE2G/world_lowest_exporter' USING PigStorage(',');
+
+	h) Least 5 Imports of goods and services (% of GDP)
+
+		world_import_avg_ASC = ORDER world_import_avg_ignorezero BY import_avg ASC;
+
+		world_import_least_10 = LIMIT world_import_avg_ASC 10;
+
+		STORE world_import_least_10 INTO 'shubhro2705854012/sb_proj_world_development/CASE2H/world_lowest_importer' USING PigStorage(',');
+
+	
+------------
+2017-12-31 12:06:00,388 [main] ERROR org.apache.pig.tools.grunt.Grunt - ERROR 1050: 
+<line 5, column 11> Unsupported input type for BinCond: left hand side: int; right hand side: chararray
+
+Caused by: Traceback (most recent call last):
+  File "/home/shubhro2705854012/proj2/world_dev_stat.py", line 18, in process_tuple
+    list_percent.append(float(value))
+TypeError: float() argument must be a string or a number
