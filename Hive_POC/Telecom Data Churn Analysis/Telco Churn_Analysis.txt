@@ -1,0 +1,84 @@
+Domain: Telecom
+Project: Analyzing customer churn using telco dataset
+Data: https://www.ibm.com/communities/analytics/watson-analyticsblog/predictive-insights-in-the-telco-customer-churn-data-set/
+
+This dataset is of Telco customer churn data. A telecommunications company is
+concerned about the number of customers leaving their landline business for
+cable competitors. It also helps to retain the customer by providing good
+services and launching new schemes, discounts at required times. It consist of
+CustomerID, gender, tenure, Senior citizens, contract etc.
+
+-----------------------------------------
+customerID,gender,SeniorCitizen,Partner,Dependents,tenure,PhoneService,MultipleLines,   InternetService,OnlineSecurity,      OnlineBackup,       DeviceProtection,   TechSupport,        StreamingTV,        StreamingMovies,    Contract,      PaperlessBilling,PaymentMethod,            MonthlyCharges,TotalCharges,Churn
+7590-VHVEG,Female,0,            Yes,    No,        1,     No,          No phone service,DSL,             No,                 Yes,                No,                 No,                 No,                 No,                 Month-to-month,Yes,             Electronic check,         29.85,         29.85,       No
+7795-CFOCW,Male,  0,            No,     No,        45,    No,          No phone service,DSL,             Yes,                No,                 Yes,                Yes,                No,                 No,                 One year,       No,             Bank transfer (automatic),42.3,          1840.75,     No
+7469-LKBCI,Male,  0,            No,     No,        16,    Yes,         No,              No,              No internet service,No internet service,No internet service,No internet service,No internet service,No internet service,Two year,       No,             Credit card (automatic),  18.95,         326.8,       No
+----------------------------------------
+CREATE DATABASE sb_proj1_telco_churn;
+USE sb_proj1_telco_churn;
+
+CREATE EXTERNAL TABLE telco_churn_table (customerID STRING,gender STRING,SeniorCitizen INT,Partner STRING,
+Dependents STRING,tenure INT,PhoneService STRING,MultipleLines STRING,
+InternetService STRING,OnlineSecurity STRING,OnlineBackup STRING,
+DeviceProtection STRING,TechSupport STRING,StreamingTV STRING,StreamingMovies STRING,
+Contract STRING,PaperlessBilling STRING,PaymentMethod STRING,
+MonthlyCharges DOUBLE,TotalCharges DOUBLE,Churn STRING)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n';
+
+LOAD DATA INPATH 'hive_shubhro/Telco_Customer_Churn.csv' OVERWRITE INTO TABLE telco_churn_table;
+
+
+Possible Exploration idea:
+1. Display average bill (Total charges) paid by male and female. 
+	
+	INSERT OVERWRITE DIRECTORY '/apps/hive/warehouse/sb_proj1_telco_churn.db/AVG_BILL' 
+	SELECT ROUND(AVG(TotalCharges),2) FROM telco_churn_table;
+
+2. Display the most frequently used payment method a male.
+
+	INSERT OVERWRITE DIRECTORY '/apps/hive/warehouse/sb_proj1_telco_churn.db/PAY_METHOD_BY_MALE' 
+	SELECT PaymentMethod,COUNT(*) as payCount FROM telco_churn_table 
+	WHERE gender = 'Male'
+	GROUP BY PaymentMethod 
+	ORDER BY payCount DESC;
+
+3. If the customer is not having any internet connection then what is
+the minimum bill that the customer has paid.
+
+	INSERT OVERWRITE DIRECTORY '/apps/hive/warehouse/sb_proj1_telco_churn.db/MIN_BILL_FOR_NO_INTERNET' 
+	SELECT MIN(TotalCharges) FROM telco_churn_table WHERE InternetService = 'No';
+
+4. Count the number of senior citizen who have dependents (i.e. 1) and give
+   them 20% discount on final bill and marked them as 'Sr Discount'.
+
+	INSERT OVERWRITE DIRECTORY '/apps/hive/warehouse/sb_proj1_telco_churn.db/SENIOR_CITIZENS_WITH_DEP'
+	SELECT COUNT(*) FROM telco_churn_table WHERE SeniorCitizen !=0 AND Dependents != 'No';
+
+	INSERT OVERWRITE DIRECTORY '/apps/hive/warehouse/sb_proj1_telco_churn.db/SENIOR_CITIZENS_WITH_DEP_DISCOUNTED_BILL'
+	SELECT *,ROUND((MonthlyCharges * 0.8),2)
+	FROM telco_churn_table
+	WHERE Dependents != 'No' 
+	AND SeniorCitizen != 0;
+
+5. Display customer id and their tenure whose tenure is more than 20 years
+   and are using paperless billing method to save an environment
+   
+	INSERT OVERWRITE DIRECTORY '/apps/hive/warehouse/sb_proj1_telco_churn.db/CUST_20_YR_PAPERLESS_BILL_LIST' 
+	SELECT customerID,tenure FROM telco_churn_table WHERE tenure > 20 AND PaperlessBilling = 'Yes';
+
+6. Which is the most preferred internet service used by the customer, is it for Fibre optic or for DSL?
+
+	INSERT OVERWRITE DIRECTORY '/apps/hive/warehouse/sb_proj1_telco_churn.db/PREFERRED_INTERNET_SERVICE' 
+	SELECT InternetService,COUNT(*) as serviceCount FROM telco_churn_table 
+	WHERE InternetService != 'No' 
+	GROUP BY InternetService
+	ORDER BY serviceCount DESC;
+
+7. Customer who are using Streaming movies option. Calculate its final bill by increasing the monthly bill by 9.5%
+
+	INSERT OVERWRITE DIRECTORY '/apps/hive/warehouse/sb_proj1_telco_churn.db/STREAM_MOVIES_ADD_BILL' 
+	SELECT *,ROUND((MonthlyCharges * 1.0095),2) AS newMonthCharge, ROUND((TotalCharges * 1.0095),2) 
+	FROM telco_churn_table
+	WHERE StreamingTV != 'No';
