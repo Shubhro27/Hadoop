@@ -1,0 +1,33 @@
+Data Source: http://ita.ee.lbl.gov/html/contrib/NASA-HTTP.html
+
+This dataset contains traces contain two month's worth of all HTTP requests to the NASA Kennedy Space Center WWW server in Florida.
+
+file downloaded: Aug 04 to Aug 31, ASCII format, 21.8 MB gzip compressed, 167.8 MB uncompressed.
+File Format:
+The logs are an ASCII file with one line per request, with the following columns:
+1) host making the request. A hostname when possible, otherwise the Internet address if the name could not be looked up.
+2) timestamp in the format "DAY MON DD HH:MM:SS YYYY", where DAY is the day of the week, MON is the name of the month, DD is the 
+   day of the month, HH:MM:SS is the time of day using a 24-hour clock, and YYYY is the year. The timezone is -0400.
+3) request given in quotes.
+4) HTTP reply code.
+5) bytes in the reply.
+
+HTTP response codes at:
+https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+
+The dataset contains two month's worth of all HTTP requests to the NASA Kennedy Space Center WWW server in Florida. The
+log files are stored in Apache Common Log Format (CLF). 
+(host, identity, useridentity, time, request, status, size)
+in24.inetnebr.com - - [01/Aug/1995:00:00:01 -0400] "GET /shuttle/missions/sts-68/news/sts-68-mcc-05.txt HTTP/1.0" 200 1839
+
+Log Format is made up of the following:
+1) host making the request. A hostname when possible, otherwise the Internet address if the name could not be looked up.
+2) '-' user identity from remote machine, currently unavailable
+3) '-' user identity from local machine, currently unavailable
+4) timestamp in the format "DAY MON DD HH:MM:SS YYYY", where DAY is the day of the week, MON is the name of the
+   month, DD is the day of the month, HH:MM:SS is the time of day using a 24-hour clock, and YYYY is the year. 
+   The timezone is -0400.
+5) Request sent to the server
+6) HTTP reply code
+7) Size (bytes) in the of the file received
+
