@@ -1,0 +1,37 @@
+The data set is a list of names and the corresponding number of prople having the name in year 2014 in USA.
+The format is (name of the person, gender and count of the people having this name)
+
+example,
+Emma,F,20799
+Olivia,F,19674
+Sophia,F,18490
+Isabella,F,16950
+Ava,F,15586
+Mia,F,13442
+Emily,F,12562
+Abigail,F,11985
+Madison,F,10247
+Charlotte,F,10048
+Harper,F,9564
+Sofia,F,9542
+Avery,F,9517
+Elizabeth,F,9492
+Amelia,F,8727
+Evelyn,F,8692
+Ella,F,8489
+.
+.
+.
+.
+Simba,M,5
+Sinjin,M,5
+Sirwilliam,M,5
+Siyon,M,5
+Sj,M,5
+Skyelar,M,5
+Skyller,M,5
+Skylon,M,5
+Slayter,M,5
+Smyan,M,5
+Snayder,M,5
+Sonam,M,5
