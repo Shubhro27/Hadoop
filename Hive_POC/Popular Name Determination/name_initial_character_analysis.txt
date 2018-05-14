@@ -1,0 +1,177 @@
+Input data looks like:
+Emma,F,20799
+Olivia,F,19674
+Sophia,F,18490
+Isabella,F,16950
+Ava,F,15586
+Mia,F,13442
+Emily,F,12562
+Abigail,F,11985
+Madison,F,10247
+Charlotte,F,10048
+Harper,F,9564
+Sofia,F,9542
+Avery,F,9517
+Elizabeth,F,9492
+Amelia,F,8727
+Evelyn,F,8692
+Ella,F,8489
+.
+.
+.
+.
+Simba,M,5
+Sinjin,M,5
+Sirwilliam,M,5
+Siyon,M,5
+Sj,M,5
+Skyelar,M,5
+Skyller,M,5
+Skylon,M,5
+Slayter,M,5
+Smyan,M,5
+Snayder,M,5
+Sonam,M,5
+
+~~~--------------------------------------------------------------------------------------------------------
+
+CREATE DATABASE sb_names_db;
+ 
+USE sb_names_db;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS american_name_2014(first_name STRING,gender_indic STRING, name_count INT)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+LOCATION '/user/shubhro2705854012/hive_shubhro';
+
+
+LOAD DATA INPATH '/user/shubhro2705854012/sb_hive_datasets/yob2014.txt' OVERWRITE INTO TABLE american_name_2014;
+
+DESCRIBE american_name_2014;
+
+O/p:
+	OK
+	first_name              string                                      
+	gender_indic            string                                      
+	name_count              int                                         
+	Time taken: 0.182 seconds, Fetched: 3 row(s)
+	
+SELECT * FROM american_name_2014 LIMIT 10;
+
+O/p:
+	Emma    F       20799
+	Olivia  F       19674
+	Sophia  F       18490
+	Isabella        F       16950
+	Ava     F       15586
+	Mia     F       13442
+	Emily   F       12562
+	Abigail F       11985
+	Madison F       10247
+	Charlotte       F       10048
+	
+~~~--------------------------------------------------------------------------------------------------------
+Q) determine the count of the names of female citizens which start with characters A-Z?
+
+CREATE TABLE IF NOT EXISTS american_fem_name_table (fname_alphabet STRING,nm_count INT)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n';
+
+INSERT OVERWRITE TABLE american_fem_name_table SELECT substr(first_name,0,1),name_count FROM american_name_2014 WHERE gender_indic = "F";
+
+SELECT fname_alphabet, SUM(nm_count) as tot FROM american_fem_name_table GROUP BY fname_alphabet ORDER BY tot DESC LIMIT 10;
+
+O/p:
+A       325658
+M       166104
+E       142064
+S       133887
+K       124115
+L       118282
+C       101889
+J       94003
+B       61232
+R       61005
+
+~~~--------------------------------------------------------------------------------------------------------
+Q) determine the count of the names of male citizens which start with characters A-Z?
+
+Trying this by using UDF:
+
+STEP-1: create a table having only name and count of all male members:
+
+CREATE TABLE IF NOT EXISTS american_male_name_tab2 (mname_char STRING,mname_count INT)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n';
+
+STEP-2: load data
+
+INSERT OVERWRITE TABLE american_male_name_tab2 SELECT first_name, name_count FROM american_name_2014 WHERE gender_indic = "M";
+
+STEP-3: write a UDF in Python:
+Python Program: str_pos.py
+import sys
+ 
+for line in sys.stdin:
+ line = line.strip()
+ fname,cnt = line.split('\t')
+ fname_char = fname[0].upper()
+ print '\t'.join([fname_char, str(cnt)])
+
+STEP-4: add the file on Hive Shell 
+add FILE /home/shubhro2705854012/hiveFiles/str_pos.py;
+
+STEP-5: apply the UDF via transform:
+SELECT TRANSFORM(mname_char,mname_count) USING 'python str_pos.py' AS (m_name,m_cnt) FROM american_male_name_tab2 LIMIT 10;
+
+O/p:
+	N       19144
+	L       18342
+	M       17092
+	J       16712
+	W       16687
+	E       15619
+	M       15323
+	A       15293
+	J       14301
+	D       13829
+
+STEP-6: try adding this info to a table
+CREATE TABLE IF NOT EXISTS american_male_char_tab (m_char STRING,m_count INT)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\t'
+LINES TERMINATED BY '\n';
+
+INSERT OVERWRITE TABLE american_male_char_tab SELECT TRANSFORM(mname_char,mname_count) USING 'python str_pos.py' AS (m_name,m_cnt) FROM american_male_name_tab2;
+
+SELECT * FROM american_male_char_tab LIMIT 10;
+
+O/p:
+	N       19144
+	L       18342
+	M       17092
+	J       16712
+	W       16687
+	E       15619
+	M       15323
+	A       15293
+	J       14301
+	D       13829
+	
+STEP-7: get the top 10 alphabets which are most popular
+SELECT m_char, SUM(m_count) as tot FROM american_male_char_tab GROUP BY m_char ORDER BY tot DESC LIMIT 10;
+
+O/p:
+	J       274625
+	A       192157
+	C       157951
+	M       132009
+	L       120850
+	D       110465
+	E       106869
+	B       106281
+	K       90149
+	R       82984
